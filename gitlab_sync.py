@@ -118,7 +118,7 @@ class GitlabSync:
                 logging.error("Cannot connect, exit sync class")
                 return
             self.search_all_users_in_ldap()
-            self.sync_gitlab_users()
+            # self.sync_gitlab_users()
             self.sync_gitlab_groups()
         except Exception as expt:  # pylint: disable=broad-exception-caught
             logging.error("Cannot sync, received exception %s", expt)
@@ -397,7 +397,7 @@ class GitlabSync:
         """
         if member['object'].access_level != abs(access_level):
             logging.info("Update access level for %s in group %s: %d->%d",
-                         member["username"], group.name, member['object'].access_level, abs(access_level))
+                         member["username"], group.full_name, member['object'].access_level, abs(access_level))
             member['object'].access_level = abs(access_level)
             if not self.sync_dry_run:
                 member['object'].save()
@@ -410,16 +410,16 @@ class GitlabSync:
             group.members.create(
                 {'user_id': user.id, 'access_level': abs(level)})
         logging.info("Add %s(id=%d) to group %s with level %d",
-                     user.username, user.id, group.name, abs(level))
+                     user.username, user.id, group.full_name, abs(level))
 
-    def remove_gitlab_group_member(self, groupname, user):
+    def remove_gitlab_group_member(self, groupname, member):
         """
         Remove member from gitlab group
         """
         logging.info("Remove %s from group %s",
-                     user['username'], groupname)
+                     member['username'], groupname)
         if not self.sync_dry_run:
-            user['object'].delete()
+            member['object'].delete()
 
     def get_ldap_group_access_level_by_name(self, groupname):
         """
@@ -518,9 +518,12 @@ class GitlabSync:
         logging.info('Sync groups')
         # gitlab_groups = {}
         for group in self.gl.groups.list(all=True):
-            logging.info('Sync group %s', group.name)
+            group_name = group.full_path
+            logging.info('Sync group %s', group_name)
+            # Name of group in ldap
+            ldap_group_name = group_name.replace("/", "--")
             ldap_members, is_exist = self.get_ldap_gitlab_group_members(
-                group.name)
+                ldap_group_name)
             # Group is not managed by ldap
             if not is_exist:
                 continue
@@ -546,7 +549,7 @@ class GitlabSync:
                     logging.warning('Member %s is not managed by ldap %s',
                                     user.username, self.gitlab_ldap_provider)
                     continue
-                self.remove_gitlab_group_member(group.name, m)
+                self.remove_gitlab_group_member(group_name, m)
 
             root_member = next((
                 item for item in gitlab_group_members if item["username"] == 'root'), None)
@@ -573,7 +576,7 @@ class GitlabSync:
                     if user is None:
                         logging.warning(
                             "User %s can.t be added to group %s because it not exist in gitlab. "
-                            "User need to login before sync", username, group.name)
+                            "User need to login before sync", username, group_name)
                         continue
                     # If user is member and exist in gitlab - add as developer member
                     self.create_gitlab_group_member(
