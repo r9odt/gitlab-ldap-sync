@@ -118,7 +118,7 @@ class GitlabSync:
                 logging.error("Cannot connect, exit sync class")
                 return
             self.search_all_users_in_ldap()
-            # self.sync_gitlab_users()
+            self.sync_gitlab_users()
             self.sync_gitlab_groups()
         except Exception as expt:  # pylint: disable=broad-exception-caught
             logging.error("Cannot sync, received exception %s", expt)
