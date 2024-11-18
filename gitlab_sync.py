@@ -75,6 +75,18 @@ class GitlabSync:
         self.expired_user_filter = f"(&(memberof=cn={self.ldap_gitlab_users_group},{self.ldap_group_base_dn})(!(nsaccountlock=TRUE))(krbPasswordExpiration<={password_expiration_border_date}))"
         self.admin_user_filter = f"(&(memberof=cn={self.ldap_gitlab_admin_group},{self.ldap_group_base_dn})(!(nsaccountlock=TRUE)))"
 
+        gitlab_group_default_access_level_env = os.getenv('GITLAB_GROUP_DEFAULT_ACCESS_LEVEL')
+        self.gitlab_group_default_access_level = gitlab.const.DEVELOPER_ACCESS
+        if gitlab_group_default_access_level_env == "owner":
+            self.gitlab_group_default_access_level = gitlab.const.OWNER_ACCESS
+        if gitlab_group_default_access_level_env == "maintainer":
+            self.gitlab_group_default_access_level = gitlab.const.MAINTAINER_ACCESS
+        if gitlab_group_default_access_level_env == "developer":
+            self.gitlab_group_default_access_level = gitlab.const.DEVELOPER_ACCESS
+        if gitlab_group_default_access_level_env == "reporter":
+            self.gitlab_group_default_access_level = gitlab.const.REPORTER_ACCESS
+        if gitlab_group_default_access_level_env == "guest":
+            self.gitlab_group_default_access_level = gitlab.const.GUEST_ACCESS
         logging.info('Initialize gitlab-ldap-sync')
 
     def check_config(self):
@@ -435,7 +447,7 @@ class GitlabSync:
             return gitlab.const.REPORTER_ACCESS
         if groupname.endswith('-guest'):
             return gitlab.const.GUEST_ACCESS
-        return -gitlab.const.DEVELOPER_ACCESS
+        return -self.gitlab_group_default_access_level
 
     def get_ldap_gitlab_group_members(self, groupname):
         """

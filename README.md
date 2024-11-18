@@ -40,4 +40,5 @@
 - LDAP_PASSWORD: Пароль в LDAP
 - LDAP_GITLAB_USERS_GROUP: Группа, которой разрешено заходить в гитлаб. На основании этой группы синхронизируются учетные записи. Учетные записи, не входящие в эту группу устанавливаются в состояние banned. Значение по умолчанию - ***gitlab-users***
 - LDAP_GITLAB_ADMIN_GROUP: Группа, пользователи которой имеют права администратора в Gitlab. Значение по умолчанию - ***gitlab-admins***
-- LDAP_GITLAB_GROUP_PREFIX: Префикс LDAP-групп для синхронизации членов групп Gitlab. Группы должны существовать в Gitlab. Значение по умолчанию - ***gitlab-group-***
+- LDAP_GITLAB_GROUP_PREFIX: Префикс LDAP-групп для синхронизации членов групп Gitlab. Группы должны существовать в Gitlab. Значение по умолчанию  - ***gitlab-group-***
+- GITLAB_GROUP_DEFAULT_ACCESS_LEVEL: Права в группе для пользователя по умолчанию (Если группа указана без суффикса-роли). Допустимое - owner, maintainer, developer, reporter, guest
