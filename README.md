@@ -30,8 +30,8 @@ Functionality with OpenLDAP and other providers is not guaranteed and may requir
 Configuration via environment variables.
 
 - SYNC_DRY_RUN: Run in dry-run mode. Changes are not applied.
-- GITLAB_API_URL: URL for accessing Gitlab (e.g., https://gitlab.example.com).
-- GITLAB_TOKEN: Token for working with the Gitlab API.
+- GITLAB_API_URL: URL for accessing Gitlab (e.g., <https://gitlab.example.com>).
+- GITLAB_TOKEN: Token for working with the Gitlab API. (e.g. glpat-xxxxx)
 - GITLAB_LDAP_PROVIDER: Name of the LDAP provider as configured in Gitlab's LDAP settings.
 (e.g. `ldapmain`. You can find it in the GitLab configuration or in the Admin Area by viewing the Identities tab of an existing user from your provider).
 - LDAP_URL: URL for FreeIPA (e.g., ldap://ipa.example.com).
@@ -39,7 +39,7 @@ Configuration via environment variables.
 - LDAP_GROUP_BASE_DN: Base DN for groups.
 - LDAP_BIND_DN: Bind DN for LDAP.
 - LDAP_PASSWORD: LDAP password.
-- LDAP_GITLAB_USERS_GROUP: Group allowed to access Gitlab. Accounts are synchronized based on this group. Accounts not in this group are set to the banned state. Default value: gitlab-users.
-- LDAP_GITLAB_ADMIN_GROUP: Group whose members have administrator rights in Gitlab. Default value: gitlab-admins.
-- LDAP_GITLAB_GROUP_PREFIX: Prefix for LDAP groups used to synchronize Gitlab group members. Groups must already exist in Gitlab. Default value: gitlab-group-.
-- GITLAB_GROUP_DEFAULT_ACCESS_LEVEL: Default access level for users in a group (if the group is specified without a role suffix). Allowed values: owner, maintainer, developer, reporter, guest. Default value: developer
+- LDAP_GITLAB_USERS_GROUP: Group allowed to access Gitlab. Accounts are synchronized based on this group. Accounts not in this group are set to the banned state. Default value: `gitlab-users`.
+- LDAP_GITLAB_ADMIN_GROUP: Group whose members have administrator rights in Gitlab. Default value: `gitlab-admins`.
+- LDAP_GITLAB_GROUP_PREFIX: Prefix for LDAP groups used to synchronize Gitlab group members. Groups must already exist in Gitlab. Default value: `gitlab-group-`.
+- GITLAB_GROUP_DEFAULT_ACCESS_LEVEL: Default access level for users in a group (if the group is specified without a role suffix). Allowed values: `owner`, `maintainer`, `developer`, `reporter`, `guest`. Default value: `developer`
