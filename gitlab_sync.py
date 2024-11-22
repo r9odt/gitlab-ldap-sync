@@ -527,9 +527,7 @@ class GitlabSync:
         """
         Sync groups in gitlab.
         """
-        # TODO: Сделать вложенные группы
         logging.info('Sync groups')
-        # gitlab_groups = {}
         for group in self.gl.groups.list(all=True):
             group_name = group.full_path
             logging.info('Sync group %s', group_name)
