@@ -1,44 +1,44 @@
 # Gitlab sync with ldap
 
-- Ориентировано на FreeIPA. Работа с openldap не гарантируется
+- Work tested only with FreeIPA.
+Functionality with OpenLDAP and other providers is not guaranteed and may require code modifications.
 
-## Синхронизация
+## Data Synchronization
 
-- Учетные записи
-  - Автоматически не создаются
-  - Синхронизируется имя пользователя (Из свойства displayName)
-  - Синхронизируется статус администратора (На основе членства в группе)
-  - Блокируются (*ban), если исключены из группы LDAP_GITLAB_USERS_GROUP или имеют пароль, истекший более 2 дней назад. Разблокировка если условие членства выполняется и пароль не истек.
-  - Синхронизируются ssh ключи (Из свойства ipaSshPubKey, синхронизированные ключи имеют префикс 'FreeIPA managed key')
-  - Удаляются, если учетная запись отсутствует в ldap
-- Группы
-  - Автоматически не создаются
-  - Синхронизируется по членству в группах LDAP. Уровень доступа определяется названием группы. Если ACCESS_LEVEL не указан используется DEVELOPER-доступ
-  - Вложенные группы подчиняются тем же правилам именования группы в ldap, но все '/' в пути до группы заменяются на '--'
+- Users
+  - Are not created automatically.
+  - The username is synchronized (From the `displayName` attribute).
+  - Admin status is synchronized (Based on group membership).
+  - Accounts are blocked (*banned*) if they are removed from the `LDAP_GITLAB_USERS_GROUP` or if their password has been expired for more than 2 days. They are unblocked if the membership condition is fulfilled and the password is not expired.
+  - SSH keys are synchronized (From the `ipaSshPubKey` attribute; synchronized keys have the prefix 'FreeIPA managed key').
+  - Accounts are deleted if they are no longer present in LDAP.
+- Groups
+  - Are not created automatically.
+  - Membership in Gitlab groups is synchronized based on LDAP groups. Access level is determined by the group name. If `ACCESS_LEVEL` is not specified, `GITLAB_GROUP_DEFAULT_ACCESS_LEVEL` env value is used as access level by default. Default value for `GITLAB_GROUP_DEFAULT_ACCESS_LEVEL` is `developer`
+  - Nested groups follow the same group naming rules in LDAP, but all `/` in the group path are replaced with `--`.
   
   ```text
   {LDAP_GITLAB_GROUP_PREFIX}-{GROUPNAME}-{ACCESS_LEVEL}
   ```
 
-  ***gitlab-group-test-owner*** - права ***owner*** в группе ***test***
+  ***gitlab-group-test-owner*** - grants owner permissions in the test group.
 
-  ***gitlab-group-test--nested-owner*** - права ***owner*** в группе ***test/nested***
-
+  ***gitlab-group-test--nested-owner*** - grants owner permissions in the test/nested group.
 
 ## Config
 
-Конфигурация через переменные среды окружения
+Configuration via environment variables.
 
-- SYNC_DRY_RUN: Запуск в режиме dry-run. Изменения не применяются
-- GITLAB_API_URL: Url для обращения к Gitlab (Прим. - <https://gitlab.example.com>)
-- GITLAB_TOKEN: Токен для работы с API Gitlab
-- GITLAB_LDAP_PROVIDER: Имя провайдера, указанное в конфигурации ldap для Gitlab
-- LDAP_URL: URL для FreeIPA (Прим. - ldap://ipa.example.com)
-- LDAP_USERS_BASE_DN: Base DN для пользователей
-- LDAP_GROUP_BASE_DN: Base DN для групп
-- LDAP_BIND_DN: Bind DN в LDAP
-- LDAP_PASSWORD: Пароль в LDAP
-- LDAP_GITLAB_USERS_GROUP: Группа, которой разрешено заходить в гитлаб. На основании этой группы синхронизируются учетные записи. Учетные записи, не входящие в эту группу устанавливаются в состояние banned. Значение по умолчанию - ***gitlab-users***
-- LDAP_GITLAB_ADMIN_GROUP: Группа, пользователи которой имеют права администратора в Gitlab. Значение по умолчанию - ***gitlab-admins***
-- LDAP_GITLAB_GROUP_PREFIX: Префикс LDAP-групп для синхронизации членов групп Gitlab. Группы должны существовать в Gitlab. Значение по умолчанию  - ***gitlab-group-***
-- GITLAB_GROUP_DEFAULT_ACCESS_LEVEL: Права в группе для пользователя по умолчанию (Если группа указана без суффикса-роли). Допустимое - owner, maintainer, developer, reporter, guest
+- SYNC_DRY_RUN: Run in dry-run mode. Changes are not applied.
+- GITLAB_API_URL: URL for accessing Gitlab (e.g., https://gitlab.example.com).
+- GITLAB_TOKEN: Token for working with the Gitlab API.
+- GITLAB_LDAP_PROVIDER: Name of the LDAP provider as configured in Gitlab's LDAP settings.
+- LDAP_URL: URL for FreeIPA (e.g., ldap://ipa.example.com).
+- LDAP_USERS_BASE_DN: Base DN for users.
+- LDAP_GROUP_BASE_DN: Base DN for groups.
+- LDAP_BIND_DN: Bind DN for LDAP.
+- LDAP_PASSWORD: LDAP password.
+- LDAP_GITLAB_USERS_GROUP: Group allowed to access Gitlab. Accounts are synchronized based on this group. Accounts not in this group are set to the banned state. Default value: gitlab-users.
+- LDAP_GITLAB_ADMIN_GROUP: Group whose members have administrator rights in Gitlab. Default value: gitlab-admins.
+- LDAP_GITLAB_GROUP_PREFIX: Prefix for LDAP groups used to synchronize Gitlab group members. Groups must already exist in Gitlab. Default value: gitlab-group-.
+- GITLAB_GROUP_DEFAULT_ACCESS_LEVEL: Default access level for users in a group (if the group is specified without a role suffix). Allowed values: owner, maintainer, developer, reporter, guest. Default value: developer

@@ -12,9 +12,9 @@ Sync user fields:
 - SSH keys (LDAP: ipaSshPubKey attribute)
 Sync groups:
 - Doesn.t create non-existing groups
-- Syncing users by members on ldap
+- Sync users by members on ldap
+- Sync subgroups by members on ldap (all / in group paths must be replaced as -- in ldap group name)
 - Doesn.t remove users which not managed by ldap
-Version 2 at 03.2023
 """
 # -*- coding: utf-8 -*-
 # pylint: disable=line-too-long,import-error,no-member
@@ -55,11 +55,11 @@ class GitlabSync:
         ldap_password_env = os.getenv('LDAP_PASSWORD')
         self.ldap_password = ldap_password_env if ldap_password_env else ''
         ldap_gitlab_users_group_env = os.getenv('LDAP_GITLAB_USERS_GROUP')
-        self.ldap_gitlab_users_group = ldap_gitlab_users_group_env if ldap_gitlab_users_group_env else 'gitlab-users'
+        self.ldap_gitlab_users_group = ldap_gitlab_users_group_env if ldap_gitlab_users_group_env else 'gitlab-users'  # nopep8
         ldap_gitlab_admin_group_env = os.getenv('LDAP_GITLAB_ADMIN_GROUP')
-        self.ldap_gitlab_admin_group = ldap_gitlab_admin_group_env if ldap_gitlab_admin_group_env else 'gitlab-admins'
+        self.ldap_gitlab_admin_group = ldap_gitlab_admin_group_env if ldap_gitlab_admin_group_env else 'gitlab-admins'  # nopep8
         ldap_gitlab_group_prefix_env = os.getenv('LDAP_GITLAB_GROUP_PREFIX')
-        self.ldap_gitlab_group_prefix = ldap_gitlab_group_prefix_env if ldap_gitlab_group_prefix_env else 'gitlab-group-'
+        self.ldap_gitlab_group_prefix = ldap_gitlab_group_prefix_env if ldap_gitlab_group_prefix_env else 'gitlab-group-'  # nopep8
 
         # pylint: disable=invalid-name
         self.gl = None
@@ -69,13 +69,14 @@ class GitlabSync:
         date_expiration = datetime.datetime.now() - datetime.timedelta(days=2)
         password_expiration_border_date = date_expiration.strftime(
             "%Y%m%d%H%M%SZ")
-        self.user_filter = f"(&(memberof=cn={self.ldap_gitlab_users_group},{self.ldap_group_base_dn})(!(nsaccountlock=TRUE)))"
+        self.user_filter = f"(&(memberof=cn={self.ldap_gitlab_users_group},{self.ldap_group_base_dn})(!(nsaccountlock=TRUE)))"  # nopep8
         self.user_filter_with_uid = "(uid=%s)"
-        self.groups_memberof_filter = f"(memberof=cn=%s,{self.ldap_group_base_dn})"
-        self.expired_user_filter = f"(&(memberof=cn={self.ldap_gitlab_users_group},{self.ldap_group_base_dn})(!(nsaccountlock=TRUE))(krbPasswordExpiration<={password_expiration_border_date}))"
-        self.admin_user_filter = f"(&(memberof=cn={self.ldap_gitlab_admin_group},{self.ldap_group_base_dn})(!(nsaccountlock=TRUE)))"
+        self.groups_memberof_filter = f"(memberof=cn=%s,{self.ldap_group_base_dn})"  # nopep8
+        self.expired_user_filter = f"(&(memberof=cn={self.ldap_gitlab_users_group},{self.ldap_group_base_dn})(!(nsaccountlock=TRUE))(krbPasswordExpiration<={password_expiration_border_date}))"  # nopep8
+        self.admin_user_filter = f"(&(memberof=cn={self.ldap_gitlab_admin_group},{self.ldap_group_base_dn})(!(nsaccountlock=TRUE)))"  # nopep8
 
-        gitlab_group_default_access_level_env = os.getenv('GITLAB_GROUP_DEFAULT_ACCESS_LEVEL')
+        gitlab_group_default_access_level_env = os.getenv(
+            'GITLAB_GROUP_DEFAULT_ACCESS_LEVEL')
         self.gitlab_group_default_access_level = gitlab.const.DEVELOPER_ACCESS
         if gitlab_group_default_access_level_env == "owner":
             self.gitlab_group_default_access_level = gitlab.const.OWNER_ACCESS
