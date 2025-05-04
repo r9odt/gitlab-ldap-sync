@@ -30,11 +30,11 @@ Functionality with OpenLDAP and other providers is not guaranteed and may requir
 Configuration via environment variables.
 
 - SYNC_DRY_RUN: Run in dry-run mode. Changes are not applied.
-- GITLAB_API_URL: URL for accessing Gitlab (e.g., <https://gitlab.example.com>).
+- GITLAB_API_URL: URL for accessing Gitlab (e.g. <https://gitlab.example.com>).
 - GITLAB_TOKEN: Token for working with the Gitlab API. (e.g. glpat-xxxxx)
 - GITLAB_LDAP_PROVIDER: Name of the LDAP provider as configured in Gitlab's LDAP settings.
 (e.g. `ldapmain`. You can find it in the GitLab configuration or in the Admin Area by viewing the Identities tab of an existing user from your provider).
-- LDAP_URL: URL for FreeIPA (e.g., ldap://ipa.example.com).
+- LDAP_URL: URL for FreeIPA (e.g. ldap://ipa.example.com).
 - LDAP_USERS_BASE_DN: Base DN for users.
 - LDAP_GROUP_BASE_DN: Base DN for groups.
 - LDAP_BIND_DN: Bind DN for LDAP.
